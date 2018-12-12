@@ -5,9 +5,13 @@ import matplotlib.pyplot as plt
 from datetime import datetime as dt
 import math
 
-#Format the data to be usable for us.
+
+#Open the new data file.
 f = open("NewCheckIn.txt", "w+")
 
+
+#Filter out all files from origional data that are sign out, no 
+#log out data or not math tutoring.
 delimiter='	'
 count = 0;
 with open("CheckIn.txt") as input_file:
@@ -21,71 +25,75 @@ with open("CheckIn.txt") as input_file:
 f.close()
 
  
-#Importing data
+#Importing filtered data.
 df = pd.read_csv('NewCheckIn.txt', sep='	')
 
-#remove the uneccesary columns
+
+#Remove the uneccesary columns.
 badColumnList = list(df)
 badColumnList.remove("StartDate") 
 badColumnList.remove("Time in Center")
 df.drop(badColumnList, axis=1, inplace=True)
 
-#remove rown where the time in the center is ########
+
+#remove rown where the time in the center is ######## (rare case).
 for index, row in df.iterrows():
 	if ':' not in row['Time in Center'] or row['Time in Center'] == '0:00':
 		df.drop(df.index[index])
 
 		
-#Split the date time column into date and time
+#Split the Date Time column into Date and Time
 new = df['StartDate'].str.split(" ", 1, expand=True)
 df['Date'] = new[0]
 df['Time'] = new[1]
 
-#Remove any dates that are weekends because we don not need tutors for those dates.
+
+#Remove any dates that are weekends because we do not need tutors for those dates (online tutoring).
 for index, row in df.iterrows():
 	d = dt.strptime(row['Date'], '%m/%d/%Y')
 	if d.weekday() > 4:
 		df.drop(df.index[index])
 
 
-
+#Take each unique date in the dataframe and put them into an array
 df2 = df
 dateArray = df2.Date.unique()
 newDateArray = []
 countForDay = []
 for x in dateArray:
-
 		date = x.split('/')
-		#if int(date[0]) < 10:
-		#	date[0] = '0' + date[0]
-		#if int(date[1]) < 10:
-		#	date[1] = '0' + date[1]
-
-		#df2 = pd.DataFrame([[str(x) + ' ' + str(count) + ":00", 0]], columns=['DateTime', 'Count'])
-		#dateTimeCount.append(df2)
 		newDateArray.append(date[0] + '/' + date[1] + '/' + date[2])
 		countForDay.append(0)
 
+
+#Log the number of people in the center for each date into the corresponding 
+#position of the countForDay array
 for index, row in df2.iterrows():
 	date1 = row['Date']
 	countForDayIndex = newDateArray.index(date1)
 	countForDay[countForDayIndex] = countForDay[countForDayIndex] + 1
 
 
+#Takes the first quarter of all the dates, enumerates them, and makes those the x coordinates.
 Quarter = math.floor(len(newDateArray)/4)
 GraphX = []
 for x in newDateArray[:Quarter]:
 	GraphX.append(newDateArray.index(x))
-GraphY = countForDay[:Quarter]
 
+
+#Takes the first quarter of countForDay array, averages the number of people 
+#across all days, and prints it.
+GraphY = countForDay[:Quarter]
 count = 0
 average = 0
 for x in GraphY:
 	average = average + x
 	count = count + 1
-
 print('The average people per day in Quarter 1 is:   ' + str(average/count))
 
+
+#Plots the enumerated dates with the number of students present 
+#each date for the first quarter and shows the graph.
 plt.plot(GraphX,GraphY, 'o-', color='red')
 plt.title('Quarter 1')
 plt.ylabel('Number of Students')
@@ -94,20 +102,26 @@ plt.show()
 
 
 
-
+#Takes the second quarter of all the dates, enumerates them, and makes those the x coordinates.
 GraphX=[]
 for x in newDateArray[Quarter:2*Quarter]:
 	GraphX.append(newDateArray.index(x))
-GraphY = countForDay[Quarter:2*Quarter]
 
+
+#Takes the second quarter of countForDay array, averages the number of people 
+#across all days, and prints it.
+GraphY = countForDay[Quarter:2*Quarter]
 count = 0
 average = 0
 for x in GraphY:
 	average = average + x
 	count = count + 1
-
 print('The average people per day in Quarter 2 is:   ' + str(average/count))
 
+
+
+#Plots the enumerated dates with the number of students present 
+#each date for the second quarter and shows the graph.
 plt.plot(GraphX,GraphY, 'o-', color='red')
 plt.title('Quarter 2')
 plt.ylabel('Number of Students')
@@ -115,78 +129,96 @@ plt.xlabel('Enumerated Dates')
 plt.show()
 
 
+
+#Takes the third quarter of all the dates, enumerates them, and makes those the x coordinates.
 GraphX=[]
 for x in newDateArray[2*Quarter:3*Quarter]:
 	GraphX.append(newDateArray.index(x))
-GraphY = countForDay[2*Quarter:3*Quarter]
 
+
+
+#Takes the third quarter of countForDay array, averages the number of people 
+#across all days, and prints it.
+GraphY = countForDay[2*Quarter:3*Quarter]
 count = 0
 average = 0
 for x in GraphY:
 	average = average + x
 	count = count + 1
-
 print('The average people per day in Quarter 3 is:   ' + str(average/count))
 
+
+#Plots the enumerated dates with the number of students present 
+#each date for the third quarter and shows the graph.
 plt.plot(GraphX,GraphY, 'o-', color='red')
 plt.title('Quarter 3')
 plt.ylabel('Number of Students')
 plt.xlabel('Enumerated Dates')
 plt.show()
 
+
+
+#Takes the fourth quarter of all the dates, enumerates them, and makes those the x coordinates.
 GraphX=[]
 for x in newDateArray[3*Quarter:4*Quarter]:
 	GraphX.append(newDateArray.index(x))
-GraphY = countForDay[3*Quarter:4*Quarter]
 
+
+
+#Takes the fourth quarter of countForDay array, averages the number of people 
+#across all days, and prints it.
+GraphY = countForDay[3*Quarter:4*Quarter]
 count = 0
 average = 0
 for x in GraphY:
 	average = average + x
 	count = count + 1
-
 print('The average people per day in Quarter 4 is:   ' + str(average/count))
 
+
+
+#Plots the enumerated dates with the number of students present 
+#each date for the fourth quarter and shows the graph.
 plt.plot(GraphX,GraphY, 'o-', color='red')
 plt.title('Quarter 4')
 plt.ylabel('Number of Students')
 plt.xlabel('Enumerated Dates')
 plt.show()
 
+
+#Create an array of the DateTimes (8:00am to 9:00pm) for each date.
 dateArray = df.Date.unique()
 dateTimeArray = []
 countArray = []
-
 for x in dateArray:
 	count = 8
 	while count <= 21:
 		dateTimeArray.append(str(x) + ' ' + str(count) + ":00")
 		countArray.append(0)
-		#df2 = pd.DataFrame([[str(x) + ' ' + str(count) + ":00", 0]], columns=['DateTime', 'Count'])
-		#dateTimeCount.append(df2)
 		count = count + 1
 
 
 
-
-
-
-#Go through each row to look at info
+#Finds the number of people in the Center at each time of each day.
 for index, row in df.iterrows():
-
-	#Get the date of the record
 	date = row['Date']
+
 	#Get the hour they logged in
 	time = int(row['Time'].split(':')[0])
+
 	#Make sure they logged in at a valid time
 	if time < 8 or time > 21:
 		continue
+
 	#get The number of hours they were in the building for
 	hoursInBuilding = int(row['Time in Center'].split(':')[0])
+
 	#Find the position in the array of that login Date/Hour
 	dateTimeArrayIndex = dateTimeArray.index(date +" " + str(time) + ":00")
+
 	#add one to the corresponding count
 	countArray[dateTimeArrayIndex] = countArray[dateTimeArrayIndex] + 1
+
 	#While they were still in the center, increase array position and increase the count
 	while hoursInBuilding > 0:
 		time = time + 1
@@ -197,6 +229,11 @@ for index, row in df.iterrows():
 		dateTimeArrayIndex = dateTimeArray.index(date +" " + str(time) + ":00")
 		countArray[dateTimeArrayIndex] = countArray[dateTimeArrayIndex] + 1
 
+
+
+
+#Create a new dataframe object with DateTime and Number of Students columns.
+#Re-format the dates and times to have leading zeroes.
 data = {'DateTime' : dateTimeArray, 'Count' : countArray}
 dateTimeCount = pd.DataFrame(data)
 
@@ -223,11 +260,12 @@ for index, row in dateTimeCount.iterrows():
 	countArray.append(count)
 	
 
+
+#Store the newly formatted data into anoter dataframe.
+#Go through every day in the dataframe. Find the average 
+#number of people in the center on a certain day of the week at a certain time.
 data = {'DateTime' : dateTimeArray, 'Count' : countArray}
 dateTimeCount2 = pd.DataFrame(data)
-
-#This code plots all monday points.
-plt.figure()
 
 count = 0
 dateVal1 = dt.strptime('08-31-2018', '%m-%d-%Y')
@@ -264,59 +302,9 @@ for x in averagePeople:
 
 dummy = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
+
+
+#Show the average number of people there at each hour of Fridays for the whole semester.
+plt.figure()
 plt.plot(dummy,averagePeople, 'o-', color='red')
 plt.show()
-
-
-
-
-
-
-#Gets the number of rows
-#numRow = len(dateTimeCount.index)
-#split = int(numRow * 0.8)
-#Divides data into train and test arrays
-#train=dateTimeCount2[0:split] 
-#test=dateTimeCount2[split:]
-
-#print(dateTimeCount2.head())
-#print('###################################')
-#print(train.head())
-#print('###################################')
-#print(test.head())
-
-#dateTimeCount2['Timestamp'] = pd.to_datetime(dateTimeCount2.DateTime,format='%m-%d-%Y %H:%M') 
-#dateTimeCount2.index = dateTimeCount2.Timestamp 
-#dateTimeCount2 = dateTimeCount2.resample('D').mean()
-#train['Timestamp'] = pd.to_datetime(train.DateTime,format='%m-%d-%Y %H:%M') 
-#train.index = train.Timestamp 
-#train = train.resample('D').mean() 
-#test['Timestamp'] = pd.to_datetime(test.DateTime,format='%m-%d-%Y %H:%M') 
-#test.index = test.Timestamp 
-#test = test.resample('D').mean()
-
-
-#train.Count.plot(figsize=(15,8), title= 'Student Count', fontsize=14)
-#test.Count.plot(figsize=(15,8), title= 'Student Count', fontsize=14)
-#plt.show()
-
-#dd= np.asarray(train.Count)
-#y_hat = test.copy()
-#y_hat['naive'] = dd[len(dd)-1]
-#plt.figure(figsize=(12,8))
-#plt.plot(train.index, train['Count'], label='Train')
-#plt.plot(test.index,test['Count'], label='Test')
-#plt.plot(y_hat.index,y_hat['naive'], label='Naive Forecast')
-#plt.legend(loc='best')
-#plt.title("Naive Forecast")
-#plt.show()
-
-
-#y_hat_avg = test.copy()
-#fit1 = ExponentialSmoothing(np.asarray(train['Count']) ,seasonal_periods=5 ,trend='add', seasonal='add',).fit()
-#y_hat_avg['Holt_Winter'] = fit1.forecast(len(test))
-#plt.figure(figsize=(16,8))
-#plt.plot( train['Count'], label='Train')
-#plt.plot(test['Count'], label='Test')
-#plt.plot(y_hat_avg['Holt_Winter'], label='Holt_Winter')
-#plt.legend(loc='best')
